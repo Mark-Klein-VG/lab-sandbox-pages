@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="A lightweight playground for game-mechanics experiments.">
+  <meta name="theme-color" content="#10191f">
+  <title>Mechanics Lab · Prototype Index</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Mechanics Lab home"><span class="brand-mark">M<span class="brand-dot">.</span></span><span class="brand-label">MECHANICS<br>LAB</span></a>
+      <span class="header-meta">EXPERIMENTAL PLAYSPACE <span aria-hidden="true">/</span> V 0.1</span>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> Development sandbox <span class="hairline"></span> Private source</p>
+        <div class="hero-grid">
+          <div>
+            <h1 id="hero-title">Test the rules.<br><em>Keep what works.</em></h1>
+            <p class="hero-description">Small, isolated experiments for gameplay systems. Fast to build, easy to revise, and separate from production decisions.</p>
+          </div>
+          <div class="hero-metric" aria-label="Number of live prototypes">
+            <span class="metric-number" id="prototype-count">0</span>
+            <span class="metric-label">PLAYABLE<br>EXPERIMENTS</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="catalogue" aria-labelledby="catalogue-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Experiment directory</p>
+            <h2 id="catalogue-title">Workspaces</h2>
+          </div>
+          <p class="section-note">New playable builds will appear here.</p>
+        </div>
+        <div class="card-grid">
+          <article class="lab-card" data-status="planned">
+            <div class="card-top"><span class="card-number">01 / SYSTEMS</span><span class="card-status">QUEUED</span></div>
+            <h3>Combat Lab</h3>
+            <p>Turn flow, resources, defensive choices, enemy behavior, and battle simulation.</p>
+            <span class="card-footer">AWAITING FIRST BUILD <span aria-hidden="true">↗</span></span>
+          </article>
+          <article class="lab-card" data-status="planned">
+            <div class="card-top"><span class="card-number">02 / SYSTEMS</span><span class="card-status">QUEUED</span></div>
+            <h3>Progression Lab</h3>
+            <p>Stat curves, character builds, equipment trade-offs, and progression experiments.</p>
+            <span class="card-footer">AWAITING FIRST BUILD <span aria-hidden="true">↗</span></span>
+          </article>
+          <article class="lab-card" data-status="planned">
+            <div class="card-top"><span class="card-number">03 / ACTIVITIES</span><span class="card-status">QUEUED</span></div>
+            <h3>Minigame Lab</h3>
+            <p>Standalone rule experiments, controls, risk/reward loops, and playability tests.</p>
+            <span class="card-footer">AWAITING FIRST BUILD <span aria-hidden="true">↗</span></span>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-panel" aria-labelledby="note-title">
+        <span class="note-icon" aria-hidden="true">i</span>
+        <div>
+          <h2 id="note-title">How to read these experiments</h2>
+          <p>Prototypes explore possibilities; they do <strong>not</strong> define the final game. Values, interfaces, and behaviors may change or be discarded. This website contains only deliberately publishable test material.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>MECHANICS LAB <span class="muted">/ BUILD SMALL, LEARN FAST</span></span>
+      <span id="footer-year">2026</span>
+    </footer>
+  </div>
+</body>
+</html>
