@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="theme-color" content="#10191f">
+  <title>Combat Lab — 4 vs 8 · Mechanics Lab</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./combat.css">
+  <script src="./engine.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+<div class="shell combat-shell">
+  <header class="site-header">
+    <a class="brand" href="../"><span class="brand-mark">M<span class="brand-dot">.</span></span><span class="brand-label">MECHANICS<br>LAB</span></a>
+    <a class="back-link" href="../">← MINDEN PROTOTÍPUS</a>
+  </header>
+  <main>
+    <section class="combat-hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> Combat prototype · build 0.1</p>
+        <h1 id="page-title">4 <span class="versus">vs.</span> 8</h1>
+        <p class="combat-intro">Négy karakter. Nyolc ellenfél. Három támadás, három Guard. A HP / DEF / FOC döntések kipróbálására készült, végleges grafika és végleges balance nélkül.</p>
+      </div>
+      <div class="hero-side">
+        <span class="flag">KÍSÉRLETI SZABÁLYOK</span>
+        <button id="restart" class="reset-btn" type="button">↺ Harc újrakezdése</button>
+      </div>
+    </section>
+    <div class="combat-status" role="status" aria-live="polite">
+      <span><small>KÖR</small><strong id="round">01</strong></span>
+      <span><small>FÁZIS</small><strong id="phase">JÁTÉKOS</strong></span>
+      <span><small>AKTÍV</small><strong id="active-hero">Á</strong></span>
+      <span><small>ELLENFELEK</small><strong id="remaining">8 / 8</strong></span>
+    </div>
+    <div class="battle-layout">
+      <div class="battle-stage">
+        <section class="unit-section" aria-labelledby="enemies-title">
+          <div class="column-heading"><div><p class="eyebrow">01 / Targets</p><h2 id="enemies-title">Ellenfelek <span class="heading-sub">4 fizikai · 4 mágikus</span></h2></div><span class="interaction-hint">KATTINTS EGY CÉLPONTRA</span></div>
+          <div id="enemy-grid" class="enemy-grid" aria-label="Választható ellenséges célpontok"></div>
+        </section>
+        <section class="unit-section party-section" aria-labelledby="party-title">
+          <div class="column-heading"><div><p class="eyebrow">02 / Party</p><h2 id="party-title">Csapat</h2></div><span class="interaction-hint">SORBAN CSELEKEDNEK</span></div>
+          <div id="party-grid" class="party-grid"></div>
+        </section>
+      </div>
+      <aside class="commands" aria-labelledby="command-title">
+        <div class="commands-head">
+          <p class="eyebrow">03 / Command deck</p>
+          <h2 id="command-title">Akciók</h2>
+          <p id="actor-summary" class="actor-summary"></p>
+          <p id="target-summary" class="target-summary"></p>
+        </div>
+        <div class="action-block">
+          <div class="action-block-title"><span>ATTACK</span><span class="action-block-sub">A / B / C</span></div>
+          <div id="attacks" class="action-list"></div>
+        </div>
+        <div class="action-block">
+          <div class="action-block-title"><span>GUARD</span><span class="action-block-sub">A / B / C</span></div>
+          <div id="guards" class="action-list"></div>
+        </div>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+        <p class="side-note">Az összes élő csapattag egyszer cselekszik, majd a megmaradt ellenfelek köre automatikusan lefut. A DEF/FOC ideiglenes csökkentési képlete a leírásban olvasható.</p>
+      </aside>
+    </div>
+    <section class="log-section" aria-labelledby="log-title">
+      <div class="column-heading"><div><p class="eyebrow">04 / Playback</p><h2 id="log-title">Harci napló</h2></div><span class="interaction-hint">LEGÚJABB ESEMÉNY ELÖL</span></div>
+      <ol id="battle-log" class="battle-log" aria-label="Harci események"></ol>
+    </section>
+    <details class="rules">
+      <summary>Szabályok, feltételezések és tesztértékek</summary>
+      <div class="rules-body">
+        <p>Árpád A/B/C támadásai és a négy karakter HP-ja a megadott értékek. A többi támadás korábbi relatív HP/DEF/FOC-specializációs arányokra épülő <strong>ideiglenes próbaérték</strong>.</p>
+        <p>Ideiglenes számítás: <code>HP sebzés = kerekítés(nyers HP × (1 − min(0,75, megfelelő DEF vagy FOC / 100)))</code>. A DEF/FOC-csökkentés a HP-sebzés meghatározása <em>után</em> történik. A fizikai támadás a DEF-et, a mágikus a FOC-ot használja mérséklésre. ARM/RES, SPD, BIQ, Battle Memory és komplex státuszok ebben a verzióban még nincsenek szimulálva.</p>
+        <p>Guard A: Max HP 10%, más statot nem érint. Guard B: nagy DEF-visszatöltés. Guard C: nagy FOC-visszatöltés. Ilona Guard C-je további 2 MP-t ad a korábbi MP-visszatöltési követelmény kipróbálására. Ilona mágikus támadásai 1 MP-be kerülnek, 0 MP-nél gyenge fizikai póttámadás érhető el.</p>
+        <p>Minden ellenfélnek 500 HP-ja van. Az ellenfelek támadóértékei, kezdő DEF/FOC-értékei és célválasztása tesztparaméterek, nem elfogadott design. A pontos számok a repository <code>docs/COMBAT_PROTOTYPE_V0_1.md</code> dokumentumában találhatók.</p>
+      </div>
+    </details>
+  </main>
+  <footer class="site-footer"><span>MECHANICS LAB <span class="muted">/ EXPERIMENTAL BUILD 0.1</span></span><span>NOT CANON</span></footer>
+</div>
+</body>
+</html>
