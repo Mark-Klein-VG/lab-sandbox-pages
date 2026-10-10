@@ -66,12 +66,12 @@ function sfx(name,type="physical",variant=0){
  }else if(name==="guard"){tone(415+mod,.16,.14,"sine");tone(625+mod,.19,.09,"triangle","sfx",.07);}
  else if(name==="ko"){tone(235,.18,.15,"sawtooth");tone(155,.22,.13,"sawtooth","sfx",.17);}
 }
-function fanfare(won){
+function fanfare(won,speed=1){
  pause();
  if(!ensure())return;
  context.resume().catch(()=>{});
  const seq=won?[523,659,784,1047]:[440,370,330,220];
- seq.forEach((freq,i)=>tone(freq,i===3?.65:.24,.28,won?"square":"triangle","sfx",i*.18));
+ seq.forEach((freq,i)=>tone(freq,(i===3?.65:.24)/speed,.28,won?"square":"triangle","sfx",i*.18/speed));
 }
 function volumes(music,effects){
  musicVolume=Math.min(1,Math.max(0,music));sfxVolume=Math.min(1,Math.max(0,effects));
