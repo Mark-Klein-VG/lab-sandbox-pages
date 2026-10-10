@@ -107,54 +107,85 @@ function finish(s){
  if(s.party.every(a=>a.hp===0)){s.phase="end";s.winner="enemy";log(s,"Vereség: a teljes csapat harcképtelen.","lose");return true;}
  return false;
 }
-function enemyTurn(s){
- s.phase="enemy";log(s,"— "+s.round+". kör: ellenfelek —","phase");
- for(let i=0;i<s.enemies.length;i++){
-  const actor=s.enemies[i];if(actor.hp<=0)continue;
-  const alive=s.party.filter(a=>a.hp>0);if(!alive.length)break;
-  const guardIndex=s.round%5===0?(actor.hp<actor.maxHp*.55?0:
-    actor.def<25?1:actor.foc<25?2:-1):-1;
-  if(guardIndex>=0){
-   const r=guardEffect(actor,actor.guards[guardIndex]);
-   log(s,actor.id+" · Guard "+KEYS[guardIndex]+" → "+gains(r),"enemy");continue;
-  }
-  let idx=(s.round-1)%3;
-  if(actor.mp<actor.attacks[idx].mp){
-   idx=actor.attacks.findIndex(a=>a.mp<=actor.mp);
-   if(idx<0){
-    const regenIdx=actor.guards.findIndex(g=>g.mp>0);
-    if(regenIdx>=0){const r=guardEffect(actor,actor.guards[regenIdx]);log(s,actor.id+" · Guard "+KEYS[regenIdx]+" → "+gains(r),"enemy");}
-    else log(s,actor.id+" nincs elegendő MP-je, kimarad a körből.","enemy");
-    continue;
-   }
-  }
-  const move=actor.attacks[idx],target=alive[(i+s.round-1)%alive.length];
-  actor.mp-=move.mp;
-  const r=hit(actor,target,move);
-  log(s,actor.id+" · Attack "+KEYS[idx]+" ("+move.type+") → "+target.id+": "+fmt(r),"enemy");
- }
+function finishEnemyPhase(s){
  if(finish(s))return s;
  s.round++;s.phase="player";s.turnIndex=s.party.findIndex(a=>a.hp>0);
  log(s,s.round+". kör · csapat következik","phase");return s;
 }
-function next(s){
+function beginEnemyPhase(s){
+ s.phase="enemy";s.enemyIndex=0;
+ log(s,"— "+s.round+". kör: ellenfelek —","phase");
+ return s;
+}
+/* Animate one enemy action at a time; legacy automatic turns still use this. */
+function stepEnemy(s){
+ if(s.phase!=="enemy"||s.winner)return null;
+ while(s.enemyIndex<s.enemies.length){
+  const i=s.enemyIndex++, actor=s.enemies[i];
+  if(actor.hp<=0)continue;
+  const alive=s.party.filter(a=>a.hp>0);
+  if(!alive.length){finish(s);return null;}
+  const action={actor:actor.id,kind:"attack",target:null,key:null,round:s.round};
+  const guardIndex=s.round%5===0?(actor.hp<actor.maxHp*.55?0:
+    actor.def<25?1:actor.foc<25?2:-1):-1;
+  if(guardIndex>=0){
+   const result=guardEffect(actor,actor.guards[guardIndex]);
+   log(s,actor.id+" · Guard "+KEYS[guardIndex]+" → "+gains(result),"enemy");
+   action.kind="guard";action.key=KEYS[guardIndex];
+  }else{
+   let idx=(s.round-1)%3;
+   if(actor.mp<actor.attacks[idx].mp){
+    idx=actor.attacks.findIndex(a=>a.mp<=actor.mp);
+    if(idx<0){
+     const regenIdx=actor.guards.findIndex(g=>g.mp>0);
+     if(regenIdx>=0){
+      const result=guardEffect(actor,actor.guards[regenIdx]);
+      log(s,actor.id+" · Guard "+KEYS[regenIdx]+" → "+gains(result),"enemy");
+      action.kind="guard";action.key=KEYS[regenIdx];
+     }else{
+      log(s,actor.id+" nincs elegendő MP-je, kimarad a körből.","enemy");
+      action.kind="skip";
+     }
+    }
+   }
+   if(idx>=0){
+    const move=actor.attacks[idx],target=alive[(i+s.round-1)%alive.length];
+    actor.mp-=move.mp;
+    const result=hit(actor,target,move);
+    log(s,actor.id+" · Attack "+KEYS[idx]+" ("+move.type+") → "+target.id+": "+fmt(result),"enemy");
+    action.key=KEYS[idx];action.target=target.id;action.type=move.type;
+   }
+  }
+  if(finish(s))return action;
+  if(s.enemyIndex>=s.enemies.length)finishEnemyPhase(s);
+  return action;
+ }
+ finishEnemyPhase(s);return null;
+}
+function enemyTurn(s){
+ beginEnemyPhase(s);
+ while(s.phase==="enemy"&&!s.winner)stepEnemy(s);
+ return s;
+}
+function next(s,deferEnemy=false){
  if(finish(s))return s;
  for(let i=s.turnIndex+1;i<s.party.length;i++)if(s.party[i].hp>0){s.turnIndex=i;return s;}
- return enemyTurn(s);
+ return deferEnemy?beginEnemyPhase(s):enemyTurn(s);
 }
 function enemyTarget(s,id){const e=s.enemies.find(x=>x.id===id&&x.hp>0);if(!e)throw Error("Válassz élő ellenfelet.");return e;}
-function act(s,kind,key,targetId){
+function act(s,kind,key,targetId,options){
+ const deferEnemy=Boolean(options&&options.deferEnemy);
  const hero=active(s);
  if(!hero||hero.hp<=0)throw Error("Nincs aktív, élő csapattag.");
  if(kind==="fallback"){
   if(hero.id!=="I"||hero.mp!==0)throw Error("A póttámadás kizárólag I számára, 0 MP-nél használható.");
   const t=enemyTarget(s,targetId),r=hit(hero,t,move("physical",15,0,0));
-  log(s,"I · Póttámadás → "+t.id+": "+fmt(r),"attack");return next(s);
+  log(s,"I · Póttámadás → "+t.id+": "+fmt(r),"attack");return next(s,deferEnemy);
  }
  const idx=KEYS.indexOf(key);if(idx<0)throw Error("Érvénytelen akció.");
  if(kind==="guard"){
   const r=guardEffect(hero,hero.guards[idx]);
-  log(s,hero.id+" · Guard "+key+" → "+gains(r),"guard");return next(s);
+  log(s,hero.id+" · Guard "+key+" → "+gains(r),"guard");return next(s,deferEnemy);
  }
  if(kind!=="attack")throw Error("Érvénytelen akció.");
  const target=enemyTarget(s,targetId),v=hero.attacks[idx];
@@ -162,8 +193,8 @@ function act(s,kind,key,targetId){
  hero.mp-=v.mp;
  const r=hit(hero,target,v);
  log(s,hero.id+" · Attack "+key+" ("+v.type+") → "+target.id+": "+fmt(r),"attack");
- return next(s);
+ return next(s,deferEnemy);
 }
-return {defaults,sanitize,validate,makeBattle,active,act,rawToHp,protection,hit,guardEffect,
+return {defaults,sanitize,validate,makeBattle,active,act,stepEnemy,beginEnemyPhase,rawToHp,protection,hit,guardEffect,
  config:{TYPES,KEYS,MAX,MAX_PERCENT:PERCENT_MAX}};
 });
