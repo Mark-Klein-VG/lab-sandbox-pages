@@ -362,11 +362,11 @@ function popupAt(event,progress){
  const targetId=event.target||event.actor;
  const p=unitPos(targetId);
  const entry=event.changes.find(x=>x.id===targetId);
- const val=entry?entry.delta:null;
- if(!val)return;
+ const isAttack=event.kind==="attack"||event.kind==="fallback";
+ const val=entry?entry.delta:{hp:0,def:0,foc:0,mp:0};
+ if(!entry&&!isAttack)return;
  const floating=Math.floor(Math.max(0,progress-.3)*14);
  const parts=[];
- const isAttack=event.kind==="attack"||event.kind==="fallback";
  if(isAttack){
   parts.push([""+Math.max(0,-val.hp),"#fff3be"]);
   if(val.def<0)parts.push(["DEF −"+(-val.def)+"%","#d1dfec"]);
@@ -374,8 +374,9 @@ function popupAt(event,progress){
  }else{
   for(const k of ["hp","def","foc","mp"])if(val[k]>0)parts.push(["+"+val[k]+(k==="def"||k==="foc"?"%":"")+" "+k.toUpperCase(),colors[k]]);
  }
- parts.forEach((item,i)=>{const x=Math.max(3,Math.min(573,p.x+(event.side==="party"?-7:16))),y=Math.max(20,p.y-10-floating+i*10);
-  rect(x-2,y-1,Math.min(67,item[0].length*6+4),10,"rgba(8,15,29,.82)");
+ const visible=isAttack?parts:parts.length?[parts[Math.min(parts.length-1,Math.floor(Math.max(0,progress-.3)/.7*parts.length))]]:[];
+ visible.forEach((item,i)=>{const x=Math.max(3,Math.min(573,p.x+(event.side==="party"?-7:16))),y=Math.max(20,p.y-10-floating+i*10);
+  rect(x-2,y-1,Math.min(73,item[0].length*6+4),10,"rgba(8,15,29,.82)");
   text(x,y,item[0],item[1],8);
  });
 }
