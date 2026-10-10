@@ -13,8 +13,8 @@ function select(enemies,currentId,direction,columns=4){
   if(x.index===current.index)return false;
   if(direction==="up")return x.row<current.row;
   if(direction==="down")return x.row>current.row;
-  if(direction==="left")return x.col<current.col;
-  return x.col>current.col;
+  if(direction==="left")return x.row===current.row&&x.col<current.col;
+  return x.row===current.row&&x.col>current.col;
  });
  if(!moves.length)return current.unit.id;
  const vertical=direction==="up"||direction==="down";

@@ -528,6 +528,8 @@ function menuUI(){
 
 function draw(){
  if(!ctx||!state||view.hidden)return;
+ canvas.dataset.target=state.target||"";
+ canvas.dataset.menuStage=stage;
  ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,W,H);
  scene();menuUI();
 }
