@@ -2,6 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.CombatAudio=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
 "use strict";
 let context,musicGain,sfxGain,timer=null,step=0,enabled=true,track="battle";
+const voices=new Set();
 let musicVolume=.4,sfxVolume=.65;
 function ensure(){
  if(context)return context;
@@ -20,6 +21,7 @@ function tone(freq,duration=.12,volume=.18,wave="square",channel="sfx",delay=0){
  gain.gain.exponentialRampToValueAtTime(Math.max(.002,volume),now+.01);
  gain.gain.exponentialRampToValueAtTime(.001,now+duration);
  osc.connect(gain);gain.connect(channel==="music"?musicGain:sfxGain);
+ voices.add(osc);osc.addEventListener("ended",()=>voices.delete(osc));
  osc.start(now);osc.stop(now+duration+.02);
 }
 function noise(duration=.11,volume=.16){
@@ -51,7 +53,8 @@ function start(){
 }
 function pause(){track="silent";}
 function resume(){track="battle";}
-function stop(){track="silent";if(timer!==null){clearInterval(timer);timer=null;}}
+function stop(){track="silent";if(timer!==null){clearInterval(timer);timer=null;}
+ for(const osc of voices){try{osc.stop(0);}catch(_){}}voices.clear();}
 function sfx(name,type="physical",variant=0){
  if(!enabled||!ensure())return;
  context.resume().catch(()=>{});
