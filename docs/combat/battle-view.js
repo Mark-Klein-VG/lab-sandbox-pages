@@ -382,7 +382,7 @@ function popupAt(event,progress){
 function scene(){
  backScene();
  const animated=pending?.event||null;
- const progress=pending?Math.min(1,(performance.now()-pending.start)/Math.max(1,pending.duration)):0;
+ const progress=pending?Math.min(1,((paused?pauseStart:performance.now())-pending.start)/Math.max(1,pending.duration)):0;
  for(let i=0;i<state.enemies.length;i++){
   const e=state.enemies[i],p=unitPos(e.id);
   rect(p.x-3,p.y+46,37,2,"rgba(7,12,17,.45)");
@@ -418,14 +418,20 @@ function menuUI(){
  const actor=E.active(state);
  if(actor){
   const list=category==="guard"?actor.guards:actor.attacks;
-  for(let j=0;j<3;j++){
-   const disabled=category==="attack"&&actor.mp<list[j].mp;
-   const label=(category==="guard"?"G":"A")+" "+KEYS[j];
-   text(130,274+j*25,label,disabled?"#5c7094":j===subChoice?"#fdf0bc":"#c5dbf2",11);
-   if((stage==="sub"||stage==="target")&&subChoice===j)text(118,275+j*25,"▶","#ffe3a1",9);
-  }
-  if(actor.id==="I"&&actor.mp===0&&actor.attacks.every(a=>a.mp>0)&&category==="attack"&&stage==="sub"){
-   text(123,343,"0 MP: PÓTTÁMADÁS","#fac18d",7);
+  if(stage==="sub"||stage==="target"){
+   const onlyFallback=category!=="guard"&&actor.id==="I"&&actor.mp===0&&actor.attacks.every(a=>a.mp>0);
+   if(onlyFallback){
+    text(118,274,"▶","#ffe3a1",9);
+    text(130,274,"UNARMED","#fff0bc",10);
+    text(123,302,"HP 15 / 0 MP","#fac18d",8);
+   }else{
+    for(let j=0;j<3;j++){
+     const disabled=category==="attack"&&actor.mp<list[j].mp;
+     const label=(category==="guard"?"G":"A")+" "+KEYS[j];
+     text(130,274+j*25,label,disabled?"#5c7094":j===subChoice?"#fdf0bc":"#c5dbf2",11);
+     if(subChoice===j)text(118,275+j*25,"▶","#ffe3a1",9);
+    }
+   }
   }
  }
  const target=state.enemies.find(x=>x.id===state.target&&x.hp>0)||liveEnemies()[0];
