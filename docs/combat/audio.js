@@ -1,7 +1,8 @@
-/* Original synthesized Combat Lab music and effects; no third-party recordings. */
+/* CC0 JRPG battle loop by HydroGene (OpenGameArt) + original procedural sound effects. */
 (function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.CombatAudio=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
 "use strict";
-let context,musicGain,sfxGain,timer=null,step=0,enabled=true,track="battle";
+let context,sfxGain,enabled=true,track="battle",music=null;
+const MUSIC_URL="./assets/jrpg_battle_loop.mp3";
 const voices=new Set();
 let musicVolume=.4,sfxVolume=.65;
 function ensure(){
@@ -9,7 +10,6 @@ function ensure(){
  const AudioContext=globalThis.AudioContext||globalThis.webkitAudioContext;
  if(!AudioContext)return null;
  context=new AudioContext();
- musicGain=context.createGain();musicGain.gain.value=musicVolume*.30;musicGain.connect(context.destination);
  sfxGain=context.createGain();sfxGain.gain.value=sfxVolume*.40;sfxGain.connect(context.destination);
  return context;
 }
@@ -20,7 +20,7 @@ function tone(freq,duration=.12,volume=.18,wave="square",channel="sfx",delay=0){
  gain.gain.setValueAtTime(.001,now);
  gain.gain.exponentialRampToValueAtTime(Math.max(.002,volume),now+.01);
  gain.gain.exponentialRampToValueAtTime(.001,now+duration);
- osc.connect(gain);gain.connect(channel==="music"?musicGain:sfxGain);
+ osc.connect(gain);gain.connect(sfxGain);
  voices.add(osc);osc.addEventListener("ended",()=>voices.delete(osc));
  osc.start(now);osc.stop(now+duration+.02);
 }
@@ -34,27 +34,44 @@ function noise(duration=.11,volume=.16){
  gain.gain.value=volume;
  source.buffer=buffer;source.connect(filter);filter.connect(gain);gain.connect(sfxGain);source.start();
 }
-const notes=[110,165,174.61,146.83,110,196,174.61,146.83,130.81,196,220,174.61,130.81,146.83,123.47,164.81];
-function beat(){
- if(!enabled||!context||context.state==="suspended")return;
- if(track!=="battle")return;
- const n=notes[step%16],oct=step%4===0;
- if(step%2===0)tone(n,.21,.29,"triangle","music");
- if(step%4===2)tone(n*2,.105,.06,"sawtooth","music");
- if(step%4===0)tone(n/2,.32,.19,"triangle","music");
- if(step%8===4)tone(75,.065,.08,"sine","music");
- step++;
+/* Intro is optional; this supplied CC0 file is the author's seamless loop segment. */
+function getMusic(){
+ if(music)return music;
+ const Audio=globalThis.Audio;
+ if(typeof Audio!=="function")return null;
+ music=new Audio(MUSIC_URL);
+ music.loop=true;music.preload="auto";
+ music.volume=enabled?musicVolume:0;
+ return music;
+}
+function playMusic(){
+ const song=getMusic();
+ if(!song||!enabled)return;
+ song.volume=musicVolume;
+ const promise=song.play();
+ if(promise&&typeof promise.catch==="function")promise.catch(()=>{ /* Offline/blocked hosting: leave music silent, no synthetic fallback. */ });
 }
 function start(){
- if(!ensure())return;
- context.resume().catch(()=>{});
- if(timer===null)timer=setInterval(beat,215);
  track="battle";
+ const song=getMusic();
+ if(song&&song.ended)song.currentTime=0;
+ playMusic();
 }
-function pause(){track="silent";}
-function resume(){track="battle";}
-function stop(){track="silent";if(timer!==null){clearInterval(timer);timer=null;}
- for(const osc of voices){try{osc.stop(0);}catch(_){}}voices.clear();}
+function pause(){
+ track="silent";
+ if(music)music.pause();
+}
+function resume(){
+ track="battle";
+ playMusic();
+}
+function stop(){
+ track="silent";
+ if(music){music.pause();try{music.currentTime=0;}catch(_){}}
+ for(const osc of voices){try{osc.stop(0);}catch(_){}}
+ voices.clear();
+}
+
 function sfx(name,type="physical",variant=0){
  if(!enabled||!ensure())return;
  context.resume().catch(()=>{});
@@ -76,11 +93,12 @@ function fanfare(won,speed=1){
  const seq=won?[523,659,784,1047]:[440,370,330,220];
  seq.forEach((freq,i)=>tone(freq,(i===3?.65:.24)/speed,.28,won?"square":"triangle","sfx",i*.18/speed));
 }
-function volumes(music,effects){
- musicVolume=Math.min(1,Math.max(0,music));sfxVolume=Math.min(1,Math.max(0,effects));
- if(musicGain)musicGain.gain.value=musicVolume*.30;
+function volumes(musicLevel,effectsLevel){
+ musicVolume=Math.min(1,Math.max(0,musicLevel));
+ sfxVolume=Math.min(1,Math.max(0,effectsLevel));
+ if(music)music.volume=enabled?musicVolume:0;
  if(sfxGain)sfxGain.gain.value=sfxVolume*.40;
 }
-function mute(value){enabled=!value;if(value)pause();}
-return {start,stop,pause,resume,sfx,fanfare,volumes,mute};
+function mute(value){enabled=!value;if(value)pause();else if(track==="battle")playMusic();}
+return {start,stop,pause,resume,sfx,fanfare,volumes,mute,MUSIC_URL};
 });
