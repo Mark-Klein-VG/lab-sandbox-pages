@@ -36,6 +36,10 @@ function field(name,value,opts={}){
  opts.group==='guards'?'data-group="guards" data-index="'+opts.index+'" data-field="'+p+'"':'data-field="'+p+'"';
  return '<label class="edit-field"><span>'+esc(name)+'</span><input type="number" inputmode="numeric" min="0" max="'+lim+'" step="1" value="'+value+'" '+data+'></label>';
 }
+function nameField(value,group,index){
+ const attrs='data-group="'+group+'" data-index="'+index+'" data-field="name"';
+ return '<label class="edit-field edit-name-field"><span>Akció neve</span><input type="text" maxlength="100" value="'+esc(value)+'" placeholder="'+(group==="attacks"?"Attack":"Guard")+' '+keys[index]+'" autocomplete="off" '+attrs+'></label>';
+}
 function selection(name,items,value,group,index,prop){
  const attrs='data-group="'+group+'" data-index="'+index+'" data-field="'+prop+'"';
  return '<label class="edit-field"><span>'+esc(name)+'</span><select '+attrs+'>'+items.map(([key,label])=>'<option value="'+key+'" '+(key===value?'selected':'')+'>'+label+'</option>').join("")+'</select></label>';
@@ -56,6 +60,7 @@ function renderEditor(){
  const attacks='<div class="editor-section"><h3>Attack A / B / C</h3><div class="editor-actions">'+
  a.attacks.map((m,i)=>'<div class="editor-action-card"><div class="editor-action-title"><b>ATTACK '+keys[i]+'</b><span>SAJÁT SEBZÉS</span></div>'+
  '<div class="edit-grid">'+
+ nameField(m.name||"Attack "+keys[i],"attacks",i)+
  selection("Támadás típusa",[["physical","Fizikai"],["magical","Mágikus"],["dual","Dual (gyengébb védelem)"]],m.type,"attacks",i,"type")+
  field("HP sebzés",m.hp,{group:"attacks",index:i,prop:"hp"})+
  field("DEF sebzés (százalékpont)",m.def,{group:"attacks",index:i,prop:"def"})+
@@ -65,6 +70,7 @@ function renderEditor(){
  const guards='<div class="editor-section"><h3>Guard A / B / C</h3><div class="editor-actions">'+
  a.guards.map((g,i)=>'<div class="editor-action-card"><div class="editor-action-title"><b>GUARD '+keys[i]+'</b><span>VISSZATÖLTÉS</span></div>'+
  '<div class="edit-grid">'+
+ nameField(g.name||"Guard "+keys[i],"guards",i)+
  selection("HP visszatöltés típusa",[["fixed","Fix HP"],["percent","Max HP %-a"]],g.hpMode,"guards",i,"hpMode")+
  field("HP visszatöltés",g.hp,{group:"guards",index:i,prop:"hp",max:g.hpMode==="percent"?100:10000})+
  field("DEF + (százalékpont)",g.def,{group:"guards",index:i,prop:"def"})+
@@ -89,7 +95,10 @@ function updateInput(el,final){
  const a=selectedActor();
  const group=el.dataset.group,index=Number(el.dataset.index),key=el.dataset.field;
  const dest=group==="attacks"?a.attacks[index]:group==="guards"?a.guards[index]:a;
- if(el.tagName==="SELECT"){
+ if(el.type==="text"&&key==="name"){
+  dest.name=el.value.replace(/[\u0000-\u001F\u007F]/g,"").slice(0,100);
+  if(final){dest.name=dest.name.trim()||(group==="attacks"?"Attack ":"Guard ")+keys[index];el.value=dest.name;}
+ }else if(el.tagName==="SELECT"){
   dest[key]=el.value;
   if(key==="hpMode"&&dest.hp>100&&el.value==="percent")dest.hp=100;
  } else {

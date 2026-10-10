@@ -10,8 +10,8 @@ const TYPES=["physical","magical","dual"];
 const clone=value=>JSON.parse(JSON.stringify(value));
 const cap=(n,min,max)=>Math.min(max,Math.max(min,n));
 const int=(n,fallback=0,max=MAX)=>Number.isFinite(Number(n))&&String(n).trim()!==""?cap(Math.round(Number(n)),0,max):fallback;
-function move(type,hp,def,foc,mp=0){return {type,hp,def,foc,mp};}
-function guard(hp=0,def=0,foc=0,mp=0,hpMode="fixed"){return {hp,hpMode,def,foc,mp};}
+function move(type,hp,def,foc,mp=0,name=""){return {name,type,hp,def,foc,mp};}
+function guard(hp=0,def=0,foc=0,mp=0,hpMode="fixed",name=""){return {name,hp,hpMode,def,foc,mp};}
 const heroSpecs=[
  {id:"Á",maxHp:1000,def:55,foc:45,maxMp:0,guardB:45,guardC:45,attacks:[[200,5,0],[50,20,0],[50,0,15]],channel:"physical"},
  {id:"L",maxHp:1200,def:68,foc:35,maxMp:0,guardB:60,guardC:35,attacks:[[333,3,0],[83,13,0],[83,0,8]],channel:"physical"},
@@ -20,21 +20,26 @@ const heroSpecs=[
 ];
 function defaultHero(h){
  return {id:h.id,maxHp:h.maxHp,hp:h.maxHp,def:h.def,foc:h.foc,maxMp:h.maxMp,mp:h.maxMp,
- attacks:h.attacks.map(a=>move(h.channel,a[0],a[1],a[2],h.channel==="magical"?1:0)),
- guards:[guard(10,0,0,0,"percent"),guard(0,h.guardB),guard(0,0,h.guardC,h.id==="I"?2:0)]};
+ attacks:h.attacks.map((a,i)=>move(h.channel,a[0],a[1],a[2],h.channel==="magical"?1:0,"Attack "+KEYS[i])),
+ guards:[guard(10,0,0,0,"percent","Guard A"),guard(0,h.guardB,0,0,"fixed","Guard B"),guard(0,0,h.guardC,h.id==="I"?2:0,"fixed","Guard C")]};
 }
 function defaultEnemy(i){
  const physical=i%8<4, index=i%4+1+4*Math.floor(i/8);
  const type=physical?"physical":"magical";
  return {id:(physical?"P":"M")+index,maxHp:500,hp:500,def:physical?40:20,foc:physical?20:40,
  maxMp:physical?0:99,mp:physical?0:99,
- attacks:physical?[move(type,52,5,0),move(type,38,12,0),move(type,38,0,10)]:
- [move(type,48,0,5,1),move(type,35,10,0,1),move(type,35,0,12,1)],
- guards:[guard(45),guard(0,35),guard(0,0,35,physical?0:2)]};
+ attacks:physical?[move(type,52,5,0,0,"Attack A"),move(type,38,12,0,0,"Attack B"),move(type,38,0,10,0,"Attack C")]:
+ [move(type,48,0,5,1,"Attack A"),move(type,35,10,0,1,"Attack B"),move(type,35,0,12,1,"Attack C")],
+ guards:[guard(45,0,0,0,"fixed","Guard A"),guard(0,35,0,0,"fixed","Guard B"),guard(0,0,35,physical?0:2,"fixed","Guard C")]};
 }
 function defaults(){
  return {partyIds:["Á","L","T","I"],enemyCount:8,
  party:heroSpecs.map(defaultHero),enemies:Array.from({length:16},(_,i)=>defaultEnemy(i))};
+}
+function actionName(value,fallback){
+ if(typeof value!=="string")return fallback;
+ const name=value.replace(/[\u0000-\u001F\u007F]/g,"").slice(0,100).trim();
+ return name||fallback;
 }
 function sanitizeActor(input,base){
  const src=input&&typeof input==="object"?input:{};
@@ -44,11 +49,11 @@ function sanitizeActor(input,base){
  result.mp=Math.min(result.maxMp,int(src.mp,base.mp));
  for(let i=0;i<3;i++){
   const b=base.attacks[i],a=Array.isArray(src.attacks)&&src.attacks[i]||{};
-  result.attacks.push({type:TYPES.includes(a.type)?a.type:b.type,hp:int(a.hp,b.hp),
+  result.attacks.push({name:actionName(a.name,b.name),type:TYPES.includes(a.type)?a.type:b.type,hp:int(a.hp,b.hp),
    def:int(a.def,b.def),foc:int(a.foc,b.foc),mp:int(a.mp,b.mp)});
   const g=Array.isArray(src.guards)&&src.guards[i]||{},bg=base.guards[i];
   const hpMode=g.hpMode==="percent"||g.hpMode==="fixed"?g.hpMode:bg.hpMode;
-  result.guards.push({hpMode,hp:int(g.hp,bg.hp,hpMode==="percent"?PERCENT_MAX:MAX),
+  result.guards.push({name:actionName(g.name,bg.name),hpMode,hp:int(g.hp,bg.hp,hpMode==="percent"?PERCENT_MAX:MAX),
    def:int(g.def,bg.def),foc:int(g.foc,bg.foc),mp:int(g.mp,bg.mp)});
  }
  return result;
