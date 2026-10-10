@@ -78,6 +78,11 @@ function cycleTarget(dir){
  enemyIndex=(enemyIndex+dir+list.length)%list.length;
  state.target=list[enemyIndex].id;A.sfx("cursor");
 }
+function moveTargetSpatial(direction){
+ if(!state||stage!=="target"||!liveEnemies().length)return;
+ const id=window.CombatTargetGrid.select(state.enemies,state.target,direction,ENEMY_X.length);
+ if(id&&id!==state.target){focusTarget(id);A.sfx("cursor");}
+}
 function unitPos(id){
  const h=HERO_IDS.indexOf(id);
  if(h>=0)return {x:HERO_X,y:heroY[id]};
@@ -247,11 +252,12 @@ function optionSelected(){
   else doAction("attack",KEYS[subChoice],target.id);
  }
 }
-function navigate(dir){
+function navigate(direction){
  if(pending||closing||paused||!state||state.winner)return;
- if(stage==="root")chooseMain((mainChoice+dir+2)%2);
- else if(stage==="sub")chooseSub((subChoice+dir+3)%3);
- else if(stage==="target")cycleTarget(dir);
+ if(stage==="target"){moveTargetSpatial(direction);return;}
+ const delta=direction==="up"||direction==="left"?-1:1;
+ if(stage==="root")chooseMain((mainChoice+delta+2)%2);
+ else if(stage==="sub")chooseSub((subChoice+delta+3)%3);
 }
 function back(){
  if(closing){skipEnd();return;}
@@ -273,8 +279,8 @@ function keyboard(e){
   if(view.dataset.phase==="results"){const b=get("pixel-result").querySelector("button:focus")||get("pixel-result").querySelector("button");if(b)b.click();return;}
   optionSelected();return;
  }
- if(["ArrowUp","ArrowLeft","w","a","W","A"].includes(e.key)){e.preventDefault();navigate(-1);}
- if(["ArrowDown","ArrowRight","s","d","S","D"].includes(e.key)){e.preventDefault();navigate(1);}
+ const directions={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",W:"up",s:"down",S:"down",a:"left",A:"left",d:"right",D:"right"};
+ if(Object.prototype.hasOwnProperty.call(directions,e.key)){e.preventDefault();navigate(directions[e.key]);}
 }
 document.addEventListener("keydown",keyboard);
 function pointerPos(event){
@@ -385,7 +391,7 @@ function popupAt(event,progress){
   const fontSize=12, width=window.CombatPixelFont.measure(item[0],fontSize);
   const x=Math.max(5,Math.min(W-width-8,p.x+(event.side==="party"?-12:16)));
   const y=Math.max(22,p.y-14-floating+i*18);
-  rect(x-3,y-3,width+7,19,"rgba(3,8,29,.91)");
+  rect(x-3,y-3,width+7,23,"rgba(3,8,29,.91)");
   text(x,y,item[0],item[1],fontSize);
  });
 }
@@ -460,6 +466,14 @@ function scene(){
   text(169,134,"OK / ✕ / KATTINTÁS: ÁTUGRÁS","#dbe8fb",10);
  }
 }
+function fitActionName(label,maxWidth,fontSize=10){
+ let shown="";
+ for(const char of String(label)){
+  if(window.CombatPixelFont.measure(shown+char,fontSize)>maxWidth)break;
+  shown+=char;
+ }
+ return shown;
+}
 function menuUI(){
  rect(0,STAGE_H,W,H-STAGE_H,"#0d1736");
  panel(3,260,108,96);
@@ -480,8 +494,9 @@ function menuUI(){
   }else{
    for(let j=0;j<3;j++){
     const disabled=category==="attack"&&actor.mp<list[j].mp;
-    const label=(category==="guard"?"G":"A")+" "+KEYS[j];
-    text(129,283+j*23,label,disabled?"#5c7094":j===subChoice?"#fdf0bc":"#c5dbf2",11);
+    const rawName=list[j].name||(category==="guard"?"Guard ":"Attack ")+KEYS[j];
+    const label=fitActionName(rawName,76,10);
+    text(129,283+j*23,label,disabled?"#5c7094":j===subChoice?"#fdf0bc":"#c5dbf2",10);
     if(subChoice===j)text(118,284+j*23,"▶","#ffe3a1",9);
    }
   }
@@ -508,7 +523,7 @@ function menuUI(){
   text(574,y,a.mp+"/"+a.maxMp,"#dfbce9",9);
  });
  if(!state.winner&&state.phase==="enemy")text(116,347,"ELLENFÉL KÖRE","#e4c086",7);
- if(stage==="target")text(218,347,"TARGET: OK","#f8d989",7);
+
 }
 
 function draw(){
@@ -548,14 +563,15 @@ function pollGamepad(now){
   if(rising(4))cycleTarget(-1);
   if(rising(5))cycleTarget(1);
  }
- const movement=(up||left)?-1:(down||right)?1:0;
- if(movement&&now-lastStick>180){
+ const direction=up?"up":down?"down":left?"left":right?"right":null;
+ if(direction&&now-lastStick>180){
   lastStick=now;
   if(paused||view.dataset.phase==="results"){
    const scope=paused?get("pixel-overlay"):get("pixel-result");
    const buttons=[...scope.querySelectorAll("button,select,input")].filter(x=>!x.disabled);
+   const movement=direction==="up"||direction==="left"?-1:1;
    if(buttons.length){const idx=buttons.indexOf(document.activeElement);buttons[(idx+movement+buttons.length)%buttons.length].focus();}
-  }else navigate(movement);
+  }else navigate(direction);
  }
  gamepadBefore=current;
 }
