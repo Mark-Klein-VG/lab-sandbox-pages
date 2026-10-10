@@ -80,3 +80,79 @@ button.unit-card:disabled { cursor:default; }
 @media(max-width:1080px){.battle-layout{grid-template-columns:1fr}.commands{position:static}.battle-stage{order:0}.commands{order:1}.log-section{padding-top:45px}}
 @media(max-width:780px){.enemy-grid,.party-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.combat-hero{align-items:flex-start;flex-direction:column}.hero-side{flex-direction:row;align-items:center}.combat-status{grid-template-columns:repeat(2,1fr)}.combat-status>span:nth-child(2){border-right:0}.combat-status>span:nth-child(-n+2){border-bottom:1px solid var(--border)}.combat-status>span:nth-child(3){padding-left:0}.battle-log{grid-template-columns:1fr}.heading-sub{display:block;margin-top:6px}.interaction-hint{max-width:120px}}
 @media(max-width:420px){.combat-status>span{padding:14px 9px}.combat-status small{font-size:9px}.unit-card{padding:13px 10px}.unit-kind{font-size:8px}.unit-name{font-size:24px}.hero-side{flex-wrap:wrap}.combat-hero{padding:48px 0 34px}.commands{padding:18px}}
+
+/* Combat Lab v0.2 setup overlay, additive to existing combat styles. */
+#setup-screen[hidden],#battle-screen[hidden] { display:none !important; }
+.combat-hero { align-items:center; }
+.combat-hero .flag { flex-shrink:0; }
+.setup-heading,.editor-head,.setup-footer,.enemy-list-heading,.battle-nav {
+  display:flex; justify-content:space-between; align-items:center; gap:20px;
+}
+.setup-heading { border-top:1px solid var(--border); padding:32px 0 24px; }
+.setup-heading .eyebrow,.editor-head .eyebrow { margin-bottom:7px; }
+.setup-heading h2,.editor-head h2 { font-size:30px; }
+.setup-summary { display:grid; grid-template-columns:1.25fr 1fr; gap:24px; }
+.setup-summary>div { border:1px solid var(--border); background:#18252b; padding:22px 24px; }
+.setup-summary h3,.enemy-list-heading h3,.editor-section h3 { font-size:18px; margin:0 0 7px; font-weight:650; letter-spacing:-.03em; }
+.setup-summary p { margin:0 0 20px; color:var(--muted); font-size:12px; line-height:1.7; max-width:430px; }
+.setup-roster { display:flex; flex-wrap:wrap; gap:10px; }
+.roster-unit { border:1px solid var(--border); min-width:81px; display:flex; flex-direction:column; background:#203139; }
+.roster-unit.editing,.enemy-picker.editing { border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:#304138; }
+.roster-toggle { padding:8px 10px 2px; display:flex; gap:5px; align-items:center; color:var(--muted); font:650 9px ui-monospace,monospace; cursor:pointer; letter-spacing:.04em; }
+.roster-toggle input { accent-color:var(--accent-2); width:14px; height:14px; margin:0; }
+.roster-select { border:0; padding:9px 13px 12px; background:transparent; color:var(--text); text-align:left; font:750 27px inherit; font-family:inherit; font-size:26px; cursor:pointer; }
+.roster-select small { display:block; font-size:10px; font-weight:400; margin-top:4px; color:var(--muted); white-space:nowrap; }
+.roster-select:hover { color:var(--accent); }
+.enemy-count-label { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); gap:20px; padding-top:13px; color:var(--accent-2); font:700 12px ui-monospace,Consolas,monospace; letter-spacing:.05em; }
+.enemy-count-label input { width:98px; font-size:24px; text-align:center; font-weight:700; }
+.setup-enemies { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 30px; }
+.enemy-list-heading { padding:28px 0 15px; }
+.enemy-list-heading h3 { margin:0; }
+.enemy-list-heading span { color:var(--muted); font-size:11px; }
+.enemy-picker { padding:11px 17px; min-width:78px; background:#1b2c32; border:1px solid var(--border); color:var(--text); font:750 18px ui-monospace,Consolas,monospace; cursor:pointer; text-align:left; }
+.enemy-picker small { display:block; color:var(--muted); font-size:9px; font-weight:500; margin-top:6px; }
+.enemy-picker:hover { border-color:var(--accent-2); }
+.editor { border:1px solid var(--border); background:#152329; margin-bottom:25px; }
+.editor-head { background:#203137; border-bottom:1px solid var(--border); padding:27px 29px; }
+.editor-head p:not(.eyebrow) { color:var(--muted); font-size:12px; margin:10px 0 0; }
+.editor-head .flag { color:var(--accent); border-color:#718070; }
+.editor-section { padding:28px; border-bottom:1px solid var(--border); }
+.editor-section:last-child { border-bottom:0; }
+.editor-section h3 { margin-bottom:18px; }
+.edit-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; }
+.edit-field { display:flex; flex-direction:column; gap:7px; min-width:0; font-size:11px; color:var(--muted); line-height:1.3; font-weight:550; }
+.edit-field input,.edit-field select,.enemy-count-label input {
+  width:100%; padding:11px 12px; background:#0f1c21; color:var(--text); border:1px solid var(--border);
+  border-radius:2px; font-family:ui-monospace,Consolas,monospace; font-size:14px; font-weight:600;
+}
+.edit-field input:focus-visible,.edit-field select:focus-visible,.enemy-count-label input:focus-visible { border-color:var(--accent-2); outline:2px solid rgba(139,200,176,.3); outline-offset:0; }
+.edit-field select { font-family:inherit; font-weight:500; appearance:auto; cursor:pointer; }
+.editor-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.editor-action-card { border:1px solid var(--border); background:#192a30; min-width:0; padding:17px; }
+.editor-action-title { display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:15px; }
+.editor-action-title b { color:var(--accent); font:700 12px ui-monospace,Consolas,monospace; }
+.editor-action-title span { color:var(--muted); font:500 9px ui-monospace,monospace; letter-spacing:.04em; }
+.editor-action-card .edit-grid { grid-template-columns:1fr; gap:13px; }
+.preset-box { border:1px solid var(--border); margin-bottom:26px; padding:18px 25px; }
+.preset-box summary { cursor:pointer; font-weight:600; font-size:14px; color:var(--accent-2); }
+.preset-box p { font-size:12px; color:var(--muted); line-height:1.6; }
+.preset-box textarea { width:100%; display:block; resize:vertical; background:#0b161b; color:var(--text); padding:15px; border:1px solid var(--border); font:11px/1.5 ui-monospace,monospace; }
+.preset-buttons { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.setup-footer { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:22px 0; margin-bottom:12px; }
+.setup-footer strong { color:var(--text); font-size:17px; }
+.setup-footer p { color:var(--muted); font-size:12px; margin:7px 0 0; max-width:650px; line-height:1.5; }
+.start-button { flex-shrink:0; min-width:185px; padding:17px 20px; background:var(--accent); border:0; color:#142126; font-family:inherit; font-size:14px; font-weight:750; cursor:pointer; }
+.start-button:hover { filter:brightness(1.09); }
+#setup-feedback { margin:10px 0 48px; }
+.battle-nav { justify-content:flex-end; flex-wrap:wrap; padding:5px 0 24px; }
+.battle-nav button { min-width:190px; }
+#battle-screen .combat-status { margin-bottom:35px; }
+#battle-screen .enemy-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+#battle-screen .party-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+#battle-screen .unit-card { padding:13px 12px; }
+#battle-screen .unit-name { font-size:24px; }
+#battle-screen .unit-top { margin-bottom:16px; }
+#battle-screen .resource { margin-top:9px; }
+@media(max-width:1080px){ .editor-actions{grid-template-columns:1fr}.editor-action-card .edit-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media(max-width:780px){ .setup-summary{grid-template-columns:1fr}.setup-heading{align-items:flex-start;flex-wrap:wrap}.editor-head{align-items:flex-start}.edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.editor-action-card .edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#battle-screen .enemy-grid,#battle-screen .party-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.combat-hero{flex-direction:column;align-items:flex-start}.setup-footer{align-items:flex-start;flex-direction:column}.start-button{width:100%}.battle-nav{justify-content:stretch}.battle-nav button{flex:1} }
+@media(max-width:480px){ .editor-section,.editor-head{padding:18px}.editor-action-card{padding:13px}.edit-grid,.editor-action-card .edit-grid{grid-template-columns:1fr 1fr;gap:9px}.edit-field{font-size:10px}.edit-field input,.edit-field select{padding:9px 8px;font-size:13px}.roster-unit{min-width:67px}.roster-select{font-size:21px}.enemy-picker{min-width:65px}.setup-summary>div{padding:17px}.editor-head .flag{display:none}.editor-action-title span{display:none}.setup-footer p{font-size:11px} }
