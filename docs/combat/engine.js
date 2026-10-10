@@ -107,6 +107,7 @@ function guardEffect(actor,g){
 }
 function fmt(r){return "−"+r.hp+" HP · −"+r.def+" DEF%p · −"+r.foc+" FOC%p"+(r.ko?" [KO]":"");}
 function gains(r){return "+"+r.hp+" HP · +"+r.def+" DEF%p · +"+r.foc+" FOC%p · +"+r.mp+" MP";}
+function actionLabel(group,key,name){const generic=group+" "+key;return name&&name!==generic?generic+" / "+name:generic;}
 function finish(s){
  if(s.enemies.every(a=>a.hp===0)){s.phase="end";s.winner="party";log(s,"Győzelem: minden ellenfél legyőzve.","win");return true;}
  if(s.party.every(a=>a.hp===0)){s.phase="end";s.winner="enemy";log(s,"Vereség: a teljes csapat harcképtelen.","lose");return true;}
@@ -135,7 +136,7 @@ function stepEnemy(s){
     actor.def<25?1:actor.foc<25?2:-1):-1;
   if(guardIndex>=0){
    const result=guardEffect(actor,actor.guards[guardIndex]);
-   log(s,actor.id+" · Guard "+KEYS[guardIndex]+" → "+gains(result),"enemy");
+   log(s,actor.id+" · "+actionLabel("Guard",KEYS[guardIndex],actor.guards[guardIndex].name)+" → "+gains(result),"enemy");
    action.kind="guard";action.key=KEYS[guardIndex];
   }else{
    let idx=(s.round-1)%3;
@@ -145,7 +146,7 @@ function stepEnemy(s){
      const regenIdx=actor.guards.findIndex(g=>g.mp>0);
      if(regenIdx>=0){
       const result=guardEffect(actor,actor.guards[regenIdx]);
-      log(s,actor.id+" · Guard "+KEYS[regenIdx]+" → "+gains(result),"enemy");
+      log(s,actor.id+" · "+actionLabel("Guard",KEYS[regenIdx],actor.guards[regenIdx].name)+" → "+gains(result),"enemy");
       action.kind="guard";action.key=KEYS[regenIdx];
      }else{
       log(s,actor.id+" nincs elegendő MP-je, kimarad a körből.","enemy");
@@ -157,7 +158,7 @@ function stepEnemy(s){
     const move=actor.attacks[idx],target=alive[(i+s.round-1)%alive.length];
     actor.mp-=move.mp;
     const result=hit(actor,target,move);
-    log(s,actor.id+" · Attack "+KEYS[idx]+" ("+move.type+") → "+target.id+": "+fmt(result),"enemy");
+    log(s,actor.id+" · "+actionLabel("Attack",KEYS[idx],move.name)+" ("+move.type+") → "+target.id+": "+fmt(result),"enemy");
     action.key=KEYS[idx];action.target=target.id;action.type=move.type;
    }
   }
@@ -190,14 +191,14 @@ function act(s,kind,key,targetId,options){
  const idx=KEYS.indexOf(key);if(idx<0)throw Error("Érvénytelen akció.");
  if(kind==="guard"){
   const r=guardEffect(hero,hero.guards[idx]);
-  log(s,hero.id+" · Guard "+key+" → "+gains(r),"guard");return next(s,deferEnemy);
+  log(s,hero.id+" · "+actionLabel("Guard",key,hero.guards[idx].name)+" → "+gains(r),"guard");return next(s,deferEnemy);
  }
  if(kind!=="attack")throw Error("Érvénytelen akció.");
  const target=enemyTarget(s,targetId),v=hero.attacks[idx];
  if(hero.mp<v.mp)throw Error("Nincs elegendő MP ehhez a támadáshoz.");
  hero.mp-=v.mp;
  const r=hit(hero,target,v);
- log(s,hero.id+" · Attack "+key+" ("+v.type+") → "+target.id+": "+fmt(r),"attack");
+ log(s,hero.id+" · "+actionLabel("Attack",key,v.name)+" ("+v.type+") → "+target.id+": "+fmt(r),"attack");
  return next(s,deferEnemy);
 }
 return {defaults,sanitize,validate,makeBattle,active,act,stepEnemy,beginEnemyPhase,rawToHp,protection,hit,guardEffect,
