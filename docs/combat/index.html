@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="./combat.css">
   <script src="./engine.js" defer></script>
+  <script src="./config-export.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -64,10 +65,11 @@
       </section>
       <details class="preset-box" id="json-tools">
         <summary>Konfiguráció exportálása / importálása (JSON)</summary>
-        <p>Az értékeket kimásolhatod, és később visszatöltheted. A JSON kizárólag a harci tesztbeállításokat tartalmazza.</p>
+        <p>Az értékeket kimásolhatod, TXT-fájlba mentheted, és később visszatöltheted. A JSON kizárólag a harci tesztbeállításokat tartalmazza.</p>
         <textarea id="json-data" rows="7" spellcheck="false" aria-label="Harcbeállítások JSON formátumban"></textarea>
         <div class="preset-buttons">
           <button id="export-json" type="button" class="secondary-button">Értékek megjelenítése</button>
+          <button id="download-txt" type="button" class="secondary-button">↓ JSON letöltése TXT-ként</button>
           <button id="import-json" type="button" class="secondary-button">Beillesztett értékek betöltése</button>
         </div>
       </details>

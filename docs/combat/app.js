@@ -144,6 +144,14 @@ get("export-json").addEventListener("click",()=>{
  get("json-data").value=JSON.stringify(config,null,2);
  showError("A JSON megjelent a szövegmezőben. Kimásolhatod vagy fájlba mentheted.");
 });
+get("download-txt").addEventListener("click",()=>{
+ try {
+  const file = window.CombatConfigExport.download(config);
+  showError("Letöltés elindítva: "+file);
+ } catch (error) {
+  showError("Nem sikerült elindítani a letöltést: "+error.message);
+ }
+});
 get("import-json").addEventListener("click",()=>{
  try{
   const input=JSON.parse(get("json-data").value);
