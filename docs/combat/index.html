@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#10191f">
-  <title>Combat Lab — konfigurálható harci prototípus</title>
+  <title>Combat Lab — klasszikus JRPG-harc / konfigurálható próbarendszer</title>
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="./combat.css">
+  <link rel="stylesheet" href="./battle-view.css">
   <script src="./engine.js" defer></script>
   <script src="./config-export.js" defer></script>
+  <script src="./metrics.js" defer></script>
+  <script src="./audio.js" defer></script>
+  <script src="./battle-view.js" defer></script>
+  <script src="./setup-pad.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -21,7 +26,7 @@
   <main>
     <section class="combat-hero">
       <div>
-        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> Combat Lab · v0.2 / Állítható paraméterek</p>
+        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> Combat Lab · v0.3 / FFVI-stílusú interaktív csata</p>
         <h1><span id="hero-party">4</span> <span class="versus">vs.</span> <span id="hero-enemies">8</span></h1>
         <p class="combat-intro">Válaszd ki a harcolókat, módosítsd az egyes Attack / Guard értékeket, és indíts próbaharcot. A beállítások ebben a böngészőben megmaradnak.</p>
       </div>

@@ -74,14 +74,15 @@ function renderEditor(){
  get("editor-fields").innerHTML=basic+attacks+guards;
 }
 function showSetup(){
+ if(window.CombatPlay)window.CombatPlay.stop();
  get("setup-screen").hidden=false;
  get("battle-screen").hidden=true;
  roster();renderEditor();get("setup-feedback").textContent="";
 }
 function showBattle(){
  get("setup-screen").hidden=true;
- get("battle-screen").hidden=false;
- renderBattle();
+ get("battle-screen").hidden=true;
+ window.CombatPlay.start(config,showSetup);
 }
 function updateInput(el,final){
  if(!el||!el.matches('[data-field]'))return;

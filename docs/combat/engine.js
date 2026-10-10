@@ -68,7 +68,7 @@ function validate(config){
  if(!c.enemies.slice(0,c.enemyCount).some(a=>a.hp>0))throw Error("Legalább egy ellenfélnek legyen 1 vagy több HP-ja.");
  return c;
 }
-function log(s,text,kind="info"){s.log.push({round:s.round,text,kind});if(s.log.length>300)s.log.splice(0,s.log.length-300);}
+function log(s,text,kind="info"){s.log.push({round:s.round,text,kind});}
 function makeBattle(input){
  const c=validate(input||defaults()),party=c.party.filter(a=>c.partyIds.includes(a.id)).map(clone),
  enemies=c.enemies.slice(0,c.enemyCount).map(clone);
