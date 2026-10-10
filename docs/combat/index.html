@@ -13,6 +13,7 @@
   <script src="./config-export.js" defer></script>
   <script src="./metrics.js" defer></script>
   <script src="./audio.js" defer></script>
+  <script src="./pixel-font.js" defer></script>
   <script src="./battle-view.js" defer></script>
   <script src="./setup-pad.js" defer></script>
   <script src="./app.js" defer></script>
@@ -36,7 +37,10 @@
     <section id="setup-screen" aria-labelledby="setup-title">
       <div class="setup-heading">
         <div><p class="eyebrow">01 / Battle setup</p><h2 id="setup-title">Harc előkészítése</h2></div>
-        <button id="restore-defaults" type="button" class="secondary-button">↺ Alapértékek visszaállítása</button>
+        <div class="setup-primary-actions">
+  
+          <button id="restore-defaults" type="button" class="secondary-button">↺ Alapértékek visszaállítása</button>
+        </div>
       </div>
       <div class="setup-summary">
         <div>

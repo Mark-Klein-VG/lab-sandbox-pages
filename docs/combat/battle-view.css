@@ -60,3 +60,7 @@
 
 .pixel-music-credit { margin:8px 0 25px;color:#9aaec6;font:11px/1.5 ui-monospace,monospace;text-align:center; }
 .pixel-music-credit a {color:#e9d8a1;text-decoration:underline;}
+
+/* Faithful FFVII-style royal-blue game windows; underlying canvas uses original bitmap pixels. */
+.pixel-frame { border-color:#d5e0f3; background:#060917; }
+#pixel-canvas { image-rendering:pixelated; }

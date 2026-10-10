@@ -310,14 +310,24 @@ function clickCanvas(e){
  }
  if(x>=215&&x<344&&stage==="target"&&y>=260){optionSelected();}
 }
-function text(x,y,value,color="#e7e2d7",size=10){
- ctx.fillStyle=color;ctx.font="bold "+size+"px monospace";ctx.textBaseline="top";ctx.fillText(value,x,y);
+function text(x,y,value,color="#f5f7ff",size=10){
+ return window.CombatPixelFont.draw(ctx,x,y,value,color,size);
 }
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h);}
-function panel(x,y,w,h,title){
- rect(x,y,w,h,"#091324");rect(x+1,y+1,w-2,h-2,"#b9cce4");rect(x+3,y+3,w-6,h-6,"#152858");
- ctx.strokeStyle="#44669a";ctx.lineWidth=1;ctx.strokeRect(x+5.5,y+5.5,w-11,h-11);
- if(title)text(x+10,y+8,title,"#a4c8f0",9);
+function panel(x,y,w,h){
+ // FFVII-inspired royal-blue gradients, precise silvery border and pixel-stepped corners.
+ rect(x+2,y+2,w-1,h-1,"#04091c");
+ rect(x,y,w-2,h-2,"#03091d");
+ rect(x+2,y+1,w-6,h-4,"#f3f5fb");
+ rect(x+3,y+3,w-8,h-8,"#12235b");
+ const gradient=ctx.createLinearGradient(x+5,y+5,x+w-6,y+h-6);
+ gradient.addColorStop(0,"#07135b");
+ gradient.addColorStop(.46,"#2142b3");
+ gradient.addColorStop(.76,"#182a87");
+ gradient.addColorStop(1,"#070d3a");
+ rect(x+5,y+5,w-12,h-12,gradient);
+ rect(x+3,y+3,2,2,"#cdd8ec");
+ rect(x+w-8,y+3,3,2,"#cdd8ec");
 }
 function backScene(){
  // A neutral dark void replaces the previous street scenery.
@@ -371,9 +381,12 @@ function popupAt(event,progress){
   for(const k of ["hp","def","foc","mp"])if(val[k]>0)parts.push(["+"+val[k]+(k==="def"||k==="foc"?"%":"")+" "+k.toUpperCase(),colors[k]]);
  }
  const visible=isAttack?parts:parts.length?[parts[Math.min(parts.length-1,Math.floor(Math.max(0,Math.min(1,progress)-.3)/.7*parts.length))]]:[];
- visible.forEach((item,i)=>{const x=Math.max(3,Math.min(566,p.x+(event.side==="party"?-7:16))),y=Math.max(21,p.y-12-floating+i*12);
-  rect(x-3,y-2,Math.min(78,item[0].length*6.3+6),13,"rgba(8,15,29,.88)");
-  text(x,y,item[0],item[1],10);
+ visible.forEach((item,i)=>{
+  const fontSize=12, width=window.CombatPixelFont.measure(item[0],fontSize);
+  const x=Math.max(5,Math.min(W-width-8,p.x+(event.side==="party"?-12:16)));
+  const y=Math.max(22,p.y-14-floating+i*18);
+  rect(x-3,y-3,width+7,19,"rgba(3,8,29,.91)");
+  text(x,y,item[0],item[1],fontSize);
  });
 }
 function actionEffects(event,progress){
@@ -435,7 +448,7 @@ function scene(){
   const victoryBob=closing&&state.winner==="party"&&actor.hp>0?Math.round(Math.abs(Math.sin((performance.now()-closing.start)/175+i))*4):0;
   partySprite(i,p.x,p.y-victoryBob,actor.hp<=0,isActor&&animated.kind!=="guard"&&progress<.5,isActor&&animated.kind==="guard",hit&&progress>.35&&progress<.75);
  }
- popups=popups.filter(p=>((paused?pauseStart:performance.now())-p.start)<p.base*1.7);
+ popups=popups.filter(p=>((paused?pauseStart:performance.now())-p.start)<p.base*2.4);
  for(const p of popups)popupAt(p.event,((paused?pauseStart:performance.now())-p.start)/p.base);
  if(animated)actionEffects(animated,progress);
  if(closing){
@@ -449,10 +462,10 @@ function scene(){
 }
 function menuUI(){
  rect(0,STAGE_H,W,H-STAGE_H,"#0d1736");
- panel(3,260,108,96,"PARANCS");
- panel(113,260,100,96,stage==="sub"||stage==="target"?(category==="guard"?"GUARD":"ATTACK"):"AKCIÓ");
- panel(215,260,128,96,"CÉLPONT");
- panel(345,260,292,96,"CSAPAT");
+ panel(3,260,108,96);
+ panel(113,260,100,96);
+ panel(215,260,128,96);
+ panel(345,260,292,96);
  text(22,285,"Attack",mainChoice===0?"#fff3ba":"#a9b9d5",12);
  text(22,322,"Guard",mainChoice===1?"#fff3ba":"#a9b9d5",12);
  if(stage==="root"||stage==="sub")text(9,mainChoice===0?285:322,"▶","#ffe6a1",10);
