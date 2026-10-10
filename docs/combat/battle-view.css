@@ -57,3 +57,6 @@
 .combat-shell.battle-active .combat-hero { display:none !important; }
 .combat-shell.battle-active #pixel-play { scroll-margin-top:12px; }
 .combat-shell.battle-active #pixel-canvas { touch-action:manipulation; }
+
+.pixel-music-credit { margin:8px 0 25px;color:#9aaec6;font:11px/1.5 ui-monospace,monospace;text-align:center; }
+.pixel-music-credit a {color:#e9d8a1;text-decoration:underline;}

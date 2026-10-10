@@ -20,6 +20,7 @@ function ensureView(){
  '<div class="pixel-frame"><canvas id="pixel-canvas" width="640" height="360" tabindex="0" role="application" aria-label="Final Fantasy stílusú harci képernyő. Nyilak: navigáció, Enter: megerősítés, Backspace: vissza, Esc: szünet"></canvas>'+
  '<div id="pixel-overlay" class="pixel-overlay" hidden></div></div>'+
  '<p class="pixel-help">Egér: kattintás az ellenfélre vagy menüpontra · D-pad / bal analóg: navigáció · A / ✕: OK · B / ○: Vissza · LB/RB: célpont · Options: Pause · Enter / Backspace / Esc</p>'+
+ '<p class="pixel-music-credit">Harci zene: <a href="https://opengameart.org/content/jrpg-epic-rock-battle-theme-1" target="_blank" rel="noopener noreferrer">HydroGene — JRPG Epic Rock Battle Theme #1 (CC0)</a></p>'+
  '<div id="pixel-result" class="pixel-result" hidden></div>';
  const old=get("battle-screen");old.after(view);
  canvas=get("pixel-canvas");ctx=canvas.getContext("2d",{alpha:false});ctx.imageSmoothingEnabled=false;
