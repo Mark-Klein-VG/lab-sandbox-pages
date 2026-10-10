@@ -47,12 +47,15 @@ function start(input,exit){
  ensureView();config=E.validate(input);state=E.makeBattle(config);events=[];view.hidden=false;
  view.dataset.phase="combat";view.onExit=exit;stage="root";category="attack";mainChoice=0;subChoice=0;enemyIndex=0;
  pending=null;closing=null;paused=false;modal=null;get("pixel-overlay").hidden=true;get("pixel-result").hidden=true;
+ document.querySelector(".combat-shell")?.classList.add("battle-active");
  restorePrefs();A.start();frameClock=performance.now();
  if(!raf)raf=requestAnimationFrame(tick);
  draw();
+ requestAnimationFrame(()=>{if(view&&!view.hidden){view.scrollIntoView({block:"start",behavior:"auto"});canvas.focus({preventScroll:true});}});
 }
 function stop(){
  if(view)view.hidden=true;
+ document.querySelector(".combat-shell")?.classList.remove("battle-active");
  A.stop();state=null;pending=null;closing=null;paused=false;modal=null;
 }
 function newMatch(){
@@ -132,6 +135,7 @@ function showResults(){
  '<div class="result-scroller"><table class="result-table"><thead><tr><th>Kar.</th><th>Oldal</th><th>Akciók</th><th>HP →</th><th>DEF →</th><th>FOC →</th><th>HP ←</th><th>DEF ←</th><th>FOC ←</th><th>HP +</th><th>DEF +</th><th>FOC +</th><th>MP +</th><th>MP −</th><th>KO</th></tr></thead><tbody>'+summary+'</tbody></table></div>'+
  '<h3>Parancshasználat</h3><div class="result-scroller"><table class="result-table"><thead><tr><th>Karakter</th><th>Attack A/B/C/F</th><th>Guard A/B/C</th><th>Elszenvedett KO</th></tr></thead><tbody>'+details+'</tbody></table></div>';
  get("pixel-result").hidden=false;
+ requestAnimationFrame(()=>get("pixel-result").scrollIntoView({block:"start",behavior:"auto"}));
  A.stop();draw();
 }
 function exportResult(){
@@ -209,6 +213,7 @@ function overlayInput(e){
 function leaveBattle(){
  A.stop();paused=false;get("pixel-overlay").hidden=true;
  view.hidden=true;state=null;view.dataset.phase="setup";
+ document.querySelector(".combat-shell")?.classList.remove("battle-active");
  if(typeof view.onExit==="function")view.onExit();
 }
 function chooseMain(index){mainChoice=Math.max(0,Math.min(1,index));A.sfx("cursor");}
@@ -352,7 +357,7 @@ function enemySprite(kind,x,y,ko,attack,guard,flash){
 }
 function partySprite(index,x,y,ko,attack,guard,flash){
  if(ko){ctx.globalAlpha=.6;ctx.save();ctx.translate(x+32,y+44);ctx.rotate(-Math.PI/2);if(image&&image.complete&&image.naturalWidth)ctx.drawImage(image,index*32,0,32,48,-14,-30,32,48);ctx.restore();ctx.globalAlpha=1;return;}
- if(image&&image.complete&&image.naturalWidth)ctx.drawImage(image,index*32,0,32,48,x+(attack?-7:0),y);
+ if(image&&image.complete&&image.naturalWidth)ctx.drawImage(image,index*32,0,32,48,x+(attack?-7:0),y,32,48);
  else {rect(x+10,y+5,13,12,["#e8ad82","#b69071","#a4725c","#d0a58b"][index]);rect(x+6,y+19,23,21,["#ae3836","#507b4a","#9e323f","#3c6996"][index]);}
  if(guard){ctx.strokeStyle="#a6d2fa";ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,30,47);}
  if(flash)rect(x+3,y+4,27,42,"rgba(255,255,247,.65)");

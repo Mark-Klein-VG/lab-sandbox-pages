@@ -53,3 +53,7 @@
  .result-actions {flex-direction:column}
  .result-actions button {width:100%}
 }
+/* When a match begins, remove the tall configuration-page masthead and bring the battlefield into view. */
+.combat-shell.battle-active .combat-hero { display:none !important; }
+.combat-shell.battle-active #pixel-play { scroll-margin-top:12px; }
+.combat-shell.battle-active #pixel-canvas { touch-action:manipulation; }
